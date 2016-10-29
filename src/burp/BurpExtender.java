@@ -1,10 +1,7 @@
 package burp;
 
-public class BurpExtender implements IBurpExtender
-{
-    @Override
-    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks)
-    {
-        // your extension code here
-    }
+import hvqzao.secondorder.SecondOrderExtension;
+
+public class BurpExtender extends SecondOrderExtension {
+    // see hvqzao.secondorder.SecondOrderExtension
 }
