@@ -25,9 +25,8 @@ public class SecondOrderOptions extends javax.swing.JPanel {
 
     public SecondOrderOptions(IBurpExtenderCallbacks callbacks) {
         initComponents();
-        callbacks.customizeUiComponent(addRule);
-        callbacks.customizeUiComponent(editRule);
         callbacks.customizeUiComponent(removeRule);
+        callbacks.customizeUiComponent(clearRules);
         callbacks.customizeUiComponent(ruleTableSplitPane);
     }    
 
@@ -61,9 +60,8 @@ public class SecondOrderOptions extends javax.swing.JPanel {
         optionsDefaults = new javax.swing.JButton();
         optionsRewriteTitle = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        addRule = new javax.swing.JButton();
-        editRule = new javax.swing.JButton();
         removeRule = new javax.swing.JButton();
+        clearRules = new javax.swing.JButton();
         ruleTableSplitPane = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -86,11 +84,9 @@ public class SecondOrderOptions extends javax.swing.JPanel {
 
         jLabel1.setText("<html>The purpose of this extension is to allow semi-automated detection of second order issues.</html>");
 
-        addRule.setText("Add");
-
-        editRule.setText("Edit");
-
         removeRule.setText("Remove");
+
+        clearRules.setText("Clear");
 
         ruleTableSplitPane.setDividerLocation(300);
 
@@ -98,11 +94,11 @@ public class SecondOrderOptions extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 63, Short.MAX_VALUE)
+            .addGap(0, 59, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 109, Short.MAX_VALUE)
+            .addGap(0, 114, Short.MAX_VALUE)
         );
 
         ruleTableSplitPane.setRightComponent(jPanel3);
@@ -135,12 +131,11 @@ public class SecondOrderOptions extends javax.swing.JPanel {
                 .addComponent(optionsDefaults, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(addRule, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(removeRule, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(editRule, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(clearRules, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(removeRule, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
         );
@@ -155,15 +150,13 @@ public class SecondOrderOptions extends javax.swing.JPanel {
                 .addComponent(optionsRewriteTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(16, 16, 16)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(addRule)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(editRule)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(removeRule)
-                        .addContainerGap(30, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(clearRules)
+                        .addContainerGap(64, Short.MAX_VALUE))
                     .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
@@ -187,8 +180,7 @@ public class SecondOrderOptions extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addRule;
-    private javax.swing.JButton editRule;
+    private javax.swing.JButton clearRules;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;

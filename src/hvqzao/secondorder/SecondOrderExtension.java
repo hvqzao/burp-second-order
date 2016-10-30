@@ -3,14 +3,19 @@ package hvqzao.secondorder;
 
 import burp.IBurpExtender;
 import burp.IBurpExtenderCallbacks;
+import burp.IContextMenuFactory;
+import burp.IContextMenuInvocation;
 import burp.IHttpListener;
 import burp.IHttpRequestResponse;
 import burp.ITab;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -19,7 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
-public class SecondOrderExtension implements IBurpExtender, ITab, IHttpListener {
+public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFactory, IHttpListener {
 
     private static IBurpExtenderCallbacks callbacks;
     //private static IExtensionHelpers helpers;
@@ -29,6 +34,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IHttpListener 
     private SecondOrderOptions optionsPane;
     private final ArrayList<Rule> rule = new ArrayList<>();
     private RuleTableModel ruleTableModel;
+    private final List<JMenuItem> contextMenu = new ArrayList<>();
 
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
@@ -86,8 +92,20 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IHttpListener 
             optionsRuleTableSplitPane.setUI(new GlyphSplitPaneUI(optionsPane.getBackground())); // each need separate instance
             // add the custom tab to Burp's UI
             callbacks.addSuiteTab(SecondOrderExtension.this);
+            // context menu
+            JMenu menu = new JMenu("Second Order");
+            JMenuItem addRequestMenuItem = new JMenuItem("Add request to extension");
+            menu.add(addRequestMenuItem);
+            contextMenu.add(menu);
+            callbacks.registerContextMenuFactory(SecondOrderExtension.this);
             // get burp frame and tabbed pane handler
             //burpFrame = (JFrame) SwingUtilities.getWindowAncestor(optionsTab);
+            //
+            int row = rule.size();
+            rule.add(new Rule());
+            rule.add(new Rule());
+            rule.add(new Rule());
+            ruleTableModel.fireTableRowsInserted(row, row);            
             //
             //callbacks.printOutput("Loaded.");
         });
@@ -115,6 +133,14 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IHttpListener 
     }
 
     //
+    // implement IContextMenuFactory
+    //
+    @Override
+    public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
+        return contextMenu;
+    }
+
+    //
     // misc
     //
     class Rule {
@@ -129,17 +155,70 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IHttpListener 
         }
 
         @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        
+        @Override
+        public String getColumnName(int column) {
+            switch (column) {
+                case 0:
+                    return "Active";
+                case 1:
+                    return "Method";
+                case 2:
+                    return "URL";
+                case 3:
+                    return "Comment";
+                default:
+                    return "";
+            }
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return Boolean.class;
+                default:
+                    return String.class;
+            }
+        }
+        
+        @Override
         public int getColumnCount() {
-            return 3;
+            return 4;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            return "";
+             switch (columnIndex) {
+                case 0:
+                    return false;
+                default:
+                    return "";
+            }           
         }
 
         public int getPreferredWidth(int column) {
-            return 100;
+            switch (column) {
+                case 0:
+                    return 80;
+                case 1:
+                    return 80;
+                case 2:
+                    return 180;
+                case 3:
+                    return 120;
+                default:
+                    return 80;
+            }
         }
+
     }
 }
