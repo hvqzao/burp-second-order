@@ -28,6 +28,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 
 public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFactory, IHttpListener {
 
@@ -39,6 +40,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
     private SecondOrderOptions optionsPane;
     private final ArrayList<Rule> rules = new ArrayList<>();
     private RuleTableModel ruleTableModel;
+    private TableRowSorter<RuleTableModel> ruleTableSorter;
     private final List<JMenuItem> contextMenu = new ArrayList<>();
     private IContextMenuInvocation invocation;
     private JMenu menu;
@@ -77,12 +79,12 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
             JTable ruleTable = optionsPane.getRuleTable();
             // table
             ruleTableModel = new RuleTableModel();
-            //ruleTableSorter = new TableRowSorter<>(ruleTableModel);
+            ruleTableSorter = new TableRowSorter<>(ruleTableModel);
             ruleTable.setModel(ruleTableModel);
             // ruleTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             // ruleTable.getTableHeader().setReorderingAllowed(true);
             ruleTable.setAutoCreateRowSorter(true);
-            //ruleTable.setRowSorter(ruleTableSorter);
+            ruleTable.setRowSorter(ruleTableSorter);
             for (int i = 0; i < ruleTableModel.getColumnCount(); i++) {
                 TableColumn column = ruleTable.getColumnModel().getColumn(i);
                 column.setMinWidth(20);
@@ -127,6 +129,10 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
                     return;
                 }
                 int index = ruleTable.convertRowIndexToModel(ruleTable.getSelectedRow());
+                if (rules.get(index) == active) {
+                    active = null;
+                    updateState();
+                }
                 rules.remove(index);
                 int row = rules.size();
                 ruleTableModel.fireTableRowsDeleted(row, row);
@@ -136,6 +142,8 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
                 if (rules.isEmpty()) {
                     return;
                 }
+                active = null;
+                updateState();
                 rules.clear();
                 int row = rules.size();
                 ruleTableModel.fireTableRowsDeleted(row, row);
@@ -189,6 +197,11 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
     //
     // misc
     //
+    void updateState() {
+        JLabel state = optionsPane.getState();
+        state.setText(active != null ? "Active" : "<html><i style='color:#e58900'>Inactive</i></html>");
+    }
+
     class Rule {
 
         private final IHttpRequestResponse requestResponse;
@@ -247,8 +260,11 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
                 for (int i = 0; i < rules.size(); i++) {
                     fireTableCellUpdated(i, columnIndex);
                 }
-                JLabel state = optionsPane.getState();
-                state.setText(active != null ? "Active" : "<html><i style='color:#e58900'>Inactive</i></html>");
+                updateState();
+            }
+            // comment
+            if (columnIndex == 3) {
+                rule.getRequestResponse().setComment((String) aValue);
             }
         }
 
@@ -292,7 +308,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
                 case 1:
                     return rule.getMethod();
                 case 2:
-                    return rule.getUrl();
+                    return rule.getUrl().toString();
                 case 3:
                     return rule.getRequestResponse().getComment();
                 default:
