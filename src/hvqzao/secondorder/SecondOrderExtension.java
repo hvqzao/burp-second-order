@@ -47,6 +47,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
     private JMenu menu;
     private JMenuItem addRequestMenuItem;
     private Rule active;
+    private boolean burpFree;
 
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
@@ -56,6 +57,8 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
         helpers = callbacks.getHelpers();
         // set extension name
         callbacks.setExtensionName("Second Order");
+        // detect burp flavor
+        burpFree = String.valueOf(callbacks.getBurpVersion()[0]).equals("Burp Suite Free Edition");
         // draw UI
         SwingUtilities.invokeLater(() -> {
             // images
@@ -66,6 +69,8 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
             // extension tab
             optionsPane = new SecondOrderOptions();
             callbacks.customizeUiComponent(optionsPane);
+            //
+            optionsPane.getScanner().setEnabled(!burpFree);
             //
             JButton optionsHelp = optionsPane.getOptionsHelp();
             optionsHelp.setIcon(iconHelp);
@@ -160,7 +165,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
             //rules.add(new Rule());
             //ruleTableModel.fireTableRowsInserted(row, row);
             //
-            callbacks.printOutput("Loaded.");
+            //callbacks.printOutput("Loaded.");
         });
     }
 
