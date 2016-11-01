@@ -7,6 +7,7 @@ package hvqzao.secondorder;
 
 import burp.IBurpExtenderCallbacks;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -29,6 +30,9 @@ public class SecondOrderOptions extends javax.swing.JPanel {
         callbacks.customizeUiComponent(removeRule);
         callbacks.customizeUiComponent(clearRules);
         callbacks.customizeUiComponent(ruleTableSplitPane);
+        callbacks.customizeUiComponent(scanner);
+        callbacks.customizeUiComponent(intruder);
+        callbacks.customizeUiComponent(extender);
     }    
 
     public JButton getOptionsDefaults() {
@@ -57,6 +61,18 @@ public class SecondOrderOptions extends javax.swing.JPanel {
 
     public JLabel getState() {
         return state;
+    }
+
+    public JCheckBox getExtender() {
+        return extender;
+    }
+
+    public JCheckBox getIntruder() {
+        return intruder;
+    }
+
+    public JCheckBox getScanner() {
+        return scanner;
     }
 
     /**
@@ -107,7 +123,7 @@ public class SecondOrderOptions extends javax.swing.JPanel {
 
         clearRules.setText("Clear");
 
-        ruleTableSplitPane.setDividerLocation(450);
+        ruleTableSplitPane.setDividerLocation(460);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -147,8 +163,7 @@ public class SecondOrderOptions extends javax.swing.JPanel {
         intruder.setSelected(true);
         intruder.setText("Intruder");
 
-        extender.setSelected(true);
-        extender.setText("Extender");
+        extender.setText("Extender (use with caution)");
 
         state.setText("<html><i style='color:#e58900'>Inactive</i></html>");
 
@@ -171,7 +186,7 @@ public class SecondOrderOptions extends javax.swing.JPanel {
                             .addComponent(clearRules, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(removeRule, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 471, Short.MAX_VALUE))
+                        .addComponent(ruleTableSplitPane))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
@@ -206,13 +221,14 @@ public class SecondOrderOptions extends javax.swing.JPanel {
                                 .addComponent(clearRules))
                             .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(scanner)
-                    .addComponent(intruder)
-                    .addComponent(extender)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(scanner)
+                        .addComponent(intruder)
+                        .addComponent(extender)
+                        .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, 0))
         );
 

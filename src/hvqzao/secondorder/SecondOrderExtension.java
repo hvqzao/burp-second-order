@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -104,6 +105,8 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
             optionsRuleTableSplitPane.setDividerSize(10);
             //optionsRuleTableSplitPane.setContinuousLayout(true);
             optionsRuleTableSplitPane.setUI(new GlyphSplitPaneUI(optionsPane.getBackground())); // each need separate instance
+            // register ourselves as an HTTP listener
+            callbacks.registerHttpListener(SecondOrderExtension.this);
             // add the custom tab to Burp's UI
             callbacks.addSuiteTab(SecondOrderExtension.this);
             // context menu
@@ -179,7 +182,29 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
     //
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
-        // TODO
+        // lets keep local reference to avoid race condition
+        Rule rule = active;
+        // is rule set?
+        if (rule != null && messageIsRequest == false) {
+            // we are interested in responses only
+            if (toolFlag == IBurpExtenderCallbacks.TOOL_PROXY || toolFlag == IBurpExtenderCallbacks.TOOL_SPIDER) {
+                // quick return on TOOL_PROXY & TOOL_SPIDER
+                return;
+            }
+            if ((toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER && optionsPane.getScanner().isSelected())
+                    || (toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER && optionsPane.getIntruder().isSelected())
+                    || (toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER && optionsPane.getExtender().isSelected())) {
+                IHttpRequestResponse baseRequestResponse = rule.getRequestResponse();
+                byte[] request = baseRequestResponse.getRequest();
+                if (toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER && optionsPane.getExtender().isSelected() && Arrays.equals(messageInfo.getRequest(), request)) {
+                    // avoid infinite loop of requests
+                    return;
+                }
+                // issue second order request and replace response in SCANNER / INTRUDER / EXTENDER request
+                IHttpRequestResponse requestResponse = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), request);
+                messageInfo.setResponse(requestResponse.getResponse());
+            }
+        }
     }
 
     //
@@ -199,7 +224,7 @@ public class SecondOrderExtension implements IBurpExtender, ITab, IContextMenuFa
     //
     void updateState() {
         JLabel state = optionsPane.getState();
-        state.setText(active != null ? "Active" : "<html><i style='color:#e58900'>Inactive</i></html>");
+        state.setText(active != null ? "<html><b>&nbsp;Active</b></html>" : "<html><i style='color:#e58900'>Inactive</i></html>");
     }
 
     class Rule {
