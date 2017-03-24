@@ -1,78 +1,334 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package hvqzao.secondorder;
 
+import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
+import burp.IContextMenuFactory;
+import burp.IContextMenuInvocation;
+import burp.IHttpListener;
+import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
+import java.awt.event.ActionEvent;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 
-/**
- *
- * @author nme
- */
-public class SecondOrderOptions extends javax.swing.JPanel {
+public class SecondOrderOptions extends JPanel implements IContextMenuFactory, IHttpListener {
 
-    /**
-     * Creates new form SecondOrderOptionsPane
-     */
+    private IBurpExtenderCallbacks callbacks;
+    //private JFrame burpFrame;
+    private final ArrayList<Rule> rules = new ArrayList<>();
+    private RuleTableModel ruleTableModel;
+    private TableRowSorter<RuleTableModel> ruleTableSorter;
+    private final List<JMenuItem> contextMenu = new ArrayList<>();
+    private IContextMenuInvocation invocation;
+    private JMenu menu;
+    private JMenuItem addRequestMenuItem;
+    private Rule active;
+
     public SecondOrderOptions() {
         initComponents();
+        initialize();
     }
 
-    public SecondOrderOptions(IBurpExtenderCallbacks callbacks) {
-        initComponents();
+    private void initialize() {
+        callbacks = BurpExtender.getCallbacks();
+
+        callbacks.customizeUiComponent(this);
+
+        callbacks.customizeUiComponent(optionsHelp);
+        callbacks.customizeUiComponent(optionsDefaults);
+        callbacks.customizeUiComponent(ruleTable);
         callbacks.customizeUiComponent(removeRule);
         callbacks.customizeUiComponent(clearRules);
         callbacks.customizeUiComponent(ruleTableSplitPane);
         callbacks.customizeUiComponent(scanner);
         callbacks.customizeUiComponent(intruder);
         callbacks.customizeUiComponent(extender);
-    }    
 
-    public JButton getOptionsDefaults() {
-        return optionsDefaults;
+        scanner.setEnabled(BurpExtender.isBurpFree() == false);
+        //
+        optionsHelp.setIcon(BurpExtender.getIconHelp());
+        optionsHelp.setEnabled(false);
+        //
+        optionsDefaults.setIcon(BurpExtender.getIconDefaults());
+        optionsDefaults.setEnabled(false);
+        // table
+        ruleTableModel = new RuleTableModel();
+        ruleTableSorter = new TableRowSorter<>(ruleTableModel);
+        ruleTable.setModel(ruleTableModel);
+        // ruleTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        // ruleTable.getTableHeader().setReorderingAllowed(true);
+        ruleTable.setAutoCreateRowSorter(true);
+        ruleTable.setRowSorter(ruleTableSorter);
+        for (int i = 0; i < ruleTableModel.getColumnCount(); i++) {
+            TableColumn column = ruleTable.getColumnModel().getColumn(i);
+            column.setMinWidth(20);
+            column.setPreferredWidth(ruleTableModel.getPreferredWidth(i));
+            int max = ruleTableModel.getMaxWidth(i);
+            if (max != -1) {
+                column.setMaxWidth(max);
+            }
+        }
+        // context menu
+        menu = new JMenu("Second order");
+        addRequestMenuItem = new JMenuItem("Add request");
+        addRequestMenuItem.addActionListener((ActionEvent e) -> {
+            // add request
+            IHttpRequestResponse[] messages = invocation.getSelectedMessages();
+            if (messages.length == 1) {
+                Rule rule = new Rule(messages[0]);
+                int row = rules.size();
+                rules.add(rule);
+                ruleTableModel.fireTableRowsInserted(row, row);
+            }
+        });
+        menu.add(addRequestMenuItem);
+        contextMenu.add(menu);
+        // remove rule
+        removeRule.addActionListener((ActionEvent e) -> {
+            int selected = ruleTable.getSelectedRow();
+            if (selected == - 1) {
+                return;
+            }
+            int index = ruleTable.convertRowIndexToModel(ruleTable.getSelectedRow());
+            if (rules.get(index) == active) {
+                active = null;
+                updateState();
+            }
+            rules.remove(index);
+            int row = rules.size();
+            ruleTableModel.fireTableRowsDeleted(row, row);
+        });
+        // clear rules
+        clearRules.addActionListener((ActionEvent e) -> {
+            if (rules.isEmpty()) {
+                return;
+            }
+            active = null;
+            updateState();
+            rules.clear();
+            int row = rules.size();
+            ruleTableModel.fireTableRowsDeleted(row, row);
+        });
+        // get burp frame and tabbed pane handler
+        //burpFrame = (JFrame) SwingUtilities.getWindowAncestor(optionsTab);
+        //
+        //int row = rules.size();
+        //rules.add(new Rule());
+        //rules.add(new Rule());
+        //rules.add(new Rule());
+        //ruleTableModel.fireTableRowsInserted(row, row);
+        //
+        //
     }
 
-    public JButton getOptionsHelp() {
-        return optionsHelp;
+    public void start() {
+        callbacks.registerContextMenuFactory(this);
+        // register ourselves as an HTTP listener
+        callbacks.registerHttpListener(this);
+        // split pane UI
+        ruleTableSplitPane.setDividerSize(10);
+        //optionsRuleTableSplitPane.setContinuousLayout(true);
+        ruleTableSplitPane.setUI(new GlyphSplitPaneUI(getBackground())); // each need separate instance
+        //callbacks.printOutput("Loaded.");
     }
 
-    public JTable getRuleTable() {
-        return ruleTable;
+    void updateState() {
+        state.setText(active != null ? "<html><b>&nbsp;Active</b></html>" : "<html><i style='color:#e58900'>Inactive</i></html>");
     }
 
-    public JSplitPane getRuleTableSplitPane() {
-        return ruleTableSplitPane;
+    private class Rule {
+
+        private final IHttpRequestResponse requestResponse;
+        private final String method;
+        private final URL url;
+
+        public Rule(IHttpRequestResponse requestResponse) {
+            this.requestResponse = requestResponse;
+            IRequestInfo requestInfo = BurpExtender.getHelpers().analyzeRequest(requestResponse);
+            method = requestInfo.getMethod();
+            url = requestInfo.getUrl();
+        }
+
+        public IHttpRequestResponse getRequestResponse() {
+            return requestResponse;
+        }
+
+        public String getMethod() {
+            return method;
+        }
+
+        public URL getUrl() {
+            return url;
+        }
     }
 
-    public JButton getRemoveRule() {
-        return removeRule;
+    private class RuleTableModel extends AbstractTableModel {
+
+        @Override
+        public int getRowCount() {
+            return rules.size();
+        }
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return true;
+                case 3:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            Rule rule = rules.get(rowIndex);
+            // active
+            if (columnIndex == 0) {
+                if (active == rule) {
+                    active = null;
+                } else {
+                    active = rule;
+                }
+                for (int i = 0; i < rules.size(); i++) {
+                    fireTableCellUpdated(i, columnIndex);
+                }
+                updateState();
+            }
+            // comment
+            if (columnIndex == 3) {
+                rule.getRequestResponse().setComment((String) aValue);
+            }
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            switch (column) {
+                case 0:
+                    return "Active";
+                case 1:
+                    return "Method";
+                case 2:
+                    return "URL";
+                case 3:
+                    return "Comment";
+                default:
+                    return "";
+            }
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return Boolean.class;
+                default:
+                    return String.class;
+            }
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 4;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            Rule rule = rules.get(rowIndex);
+            switch (columnIndex) {
+                case 0:
+                    return rule.equals(active);
+                case 1:
+                    return rule.getMethod();
+                case 2:
+                    return rule.getUrl().toString();
+                case 3:
+                    return rule.getRequestResponse().getComment();
+                default:
+                    return "";
+            }
+        }
+
+        public int getPreferredWidth(int column) {
+            switch (column) {
+                case 0:
+                    return 60;
+                case 1:
+                    return 60;
+                case 2:
+                    return 200;
+                case 3:
+                    return 120;
+                default:
+                    return 80;
+            }
+        }
+
+        public int getMaxWidth(int column) {
+            switch (column) {
+                case 0:
+                    return 60;
+                case 1:
+                    return 60;
+                case 2:
+                    return -1;
+                case 3:
+                    return 120;
+                default:
+                    return -1;
+            }
+        }
     }
 
-    public JButton getClearRules() {
-        return clearRules;
+    //
+    // implement IHttpListener
+    //
+    @Override
+    public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
+        // lets keep local reference to avoid race condition
+        Rule rule = active;
+        // is rule set?
+        if (rule != null && messageIsRequest == false) {
+            // we are interested in responses only
+            if (toolFlag == IBurpExtenderCallbacks.TOOL_PROXY || toolFlag == IBurpExtenderCallbacks.TOOL_SPIDER) {
+                // quick return on TOOL_PROXY & TOOL_SPIDER
+                return;
+            }
+            if ((toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER && scanner.isSelected())
+                    || (toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER && intruder.isSelected())
+                    || (toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER && extender.isSelected())) {
+                IHttpRequestResponse baseRequestResponse = rule.getRequestResponse();
+                byte[] request = baseRequestResponse.getRequest();
+                if (toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER && extender.isSelected() && Arrays.equals(messageInfo.getRequest(), request)) {
+                    // avoid infinite loop of requests
+                    return;
+                }
+                // issue second order request and replace response in SCANNER / INTRUDER / EXTENDER request
+                IHttpRequestResponse requestResponse = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), request);
+                messageInfo.setResponse(requestResponse.getResponse());
+            }
+        }
     }
 
-    public JLabel getState() {
-        return state;
-    }
-
-    public JCheckBox getExtender() {
-        return extender;
-    }
-
-    public JCheckBox getIntruder() {
-        return intruder;
-    }
-
-    public JCheckBox getScanner() {
-        return scanner;
+    //
+    // implement IContextMenuFactory
+    //
+    @Override
+    public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
+        IHttpRequestResponse[] messages = invocation.getSelectedMessages();
+        menu.setEnabled(messages != null);
+        addRequestMenuItem.setEnabled(messages != null && messages.length == 1);
+        this.invocation = invocation;
+        return contextMenu;
     }
 
     /**
