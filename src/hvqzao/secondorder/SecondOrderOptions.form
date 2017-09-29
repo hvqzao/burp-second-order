@@ -63,7 +63,7 @@
                               <Component id="removeRule" min="-2" pref="74" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ruleTableSplitPane" max="32767" attributes="0"/>
+                          <Component id="ruleTableSplitPane" pref="621" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -75,7 +75,9 @@
                           <Component id="scanner" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                           <Component id="intruder" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                          <Component id="repeater" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                           <Component id="extender" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -116,6 +118,7 @@
                           <Component id="intruder" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="extender" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="state" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="repeater" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
@@ -179,7 +182,7 @@
         </Component>
         <Container class="javax.swing.JSplitPane" name="ruleTableSplitPane">
           <Properties>
-            <Property name="dividerLocation" type="int" value="460"/>
+            <Property name="dividerLocation" type="int" value="550"/>
           </Properties>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
@@ -262,6 +265,12 @@
         <Component class="javax.swing.JLabel" name="state">
           <Properties>
             <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;i style=&apos;color:#e58900&apos;&gt;Inactive&lt;/i&gt;&lt;/html&gt;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="repeater">
+          <Properties>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="Repeater"/>
           </Properties>
         </Component>
       </SubComponents>
