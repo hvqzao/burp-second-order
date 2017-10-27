@@ -63,7 +63,7 @@
                               <Component id="removeRule" min="-2" pref="74" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ruleTableSplitPane" pref="621" max="32767" attributes="0"/>
+                          <Component id="ruleTableSplitPane" pref="692" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -71,9 +71,11 @@
                           <Component id="state" min="-2" pref="59" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="proxy" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="scanner" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="intruder" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                           <Component id="repeater" min="-2" max="-2" attributes="0"/>
@@ -110,16 +112,15 @@
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="scanner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="intruder" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="extender" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="state" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="repeater" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="scanner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="intruder" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="extender" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="state" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="repeater" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="proxy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               </Group>
@@ -271,6 +272,11 @@
           <Properties>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Repeater"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="proxy">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Proxy (use with caution)"/>
           </Properties>
         </Component>
       </SubComponents>

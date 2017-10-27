@@ -48,6 +48,7 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
         callbacks.customizeUiComponent(removeRule);
         callbacks.customizeUiComponent(clearRules);
         callbacks.customizeUiComponent(ruleTableSplitPane);
+        callbacks.customizeUiComponent(proxy);
         callbacks.customizeUiComponent(scanner);
         callbacks.customizeUiComponent(intruder);
         callbacks.customizeUiComponent(repeater);
@@ -300,11 +301,12 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
         // is rule set?
         if (rule != null && messageIsRequest == false) {
             // we are interested in responses only
-            if (toolFlag == IBurpExtenderCallbacks.TOOL_PROXY || toolFlag == IBurpExtenderCallbacks.TOOL_SPIDER) {
-                // quick return on TOOL_PROXY & TOOL_SPIDER
+            if (toolFlag == IBurpExtenderCallbacks.TOOL_SPIDER) {
+                // quick return on TOOL_SPIDER
                 return;
             }
-            if ((toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER && scanner.isSelected())
+            if ((toolFlag == IBurpExtenderCallbacks.TOOL_PROXY && proxy.isSelected())
+                    || (toolFlag == IBurpExtenderCallbacks.TOOL_SCANNER && scanner.isSelected())
                     || (toolFlag == IBurpExtenderCallbacks.TOOL_INTRUDER && intruder.isSelected())
                     || (toolFlag == IBurpExtenderCallbacks.TOOL_REPEATER && repeater.isSelected())
                     || (toolFlag == IBurpExtenderCallbacks.TOOL_EXTENDER && extender.isSelected())) {
@@ -314,7 +316,7 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
                     // avoid infinite loop of requests
                     return;
                 }
-                // issue second order request and replace response in SCANNER / INTRUDER / REPEATER / EXTENDER request
+                // issue second order request and replace response in PROXY / SCANNER / INTRUDER / REPEATER / EXTENDER request
                 IHttpRequestResponse requestResponse = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), request);
                 messageInfo.setResponse(requestResponse.getResponse());
             }
@@ -360,6 +362,7 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
         extender = new javax.swing.JCheckBox();
         state = new javax.swing.JLabel();
         repeater = new javax.swing.JCheckBox();
+        proxy = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
@@ -429,6 +432,8 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
         repeater.setSelected(true);
         repeater.setText("Repeater");
 
+        proxy.setText("Proxy (use with caution)");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -448,16 +453,18 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
                             .addComponent(clearRules, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(removeRule, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 621, Short.MAX_VALUE))
+                        .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 692, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
                         .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel4)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(proxy)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(scanner)
-                        .addGap(6, 6, 6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(intruder)
                         .addGap(6, 6, 6)
                         .addComponent(repeater)
@@ -485,15 +492,15 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
                                 .addComponent(clearRules))
                             .addComponent(ruleTableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel4)
-                        .addComponent(scanner)
-                        .addComponent(intruder)
-                        .addComponent(extender)
-                        .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(repeater)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(scanner)
+                    .addComponent(intruder)
+                    .addComponent(extender)
+                    .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(repeater)
+                    .addComponent(proxy)
+                    .addComponent(jLabel2))
                 .addGap(0, 0, 0))
         );
 
@@ -529,6 +536,7 @@ public class SecondOrderOptions extends JPanel implements IContextMenuFactory, I
     private javax.swing.JButton optionsDefaults;
     private javax.swing.JButton optionsHelp;
     private javax.swing.JLabel optionsRewriteTitle;
+    private javax.swing.JCheckBox proxy;
     private javax.swing.JButton removeRule;
     private javax.swing.JCheckBox repeater;
     private javax.swing.JTable ruleTable;
